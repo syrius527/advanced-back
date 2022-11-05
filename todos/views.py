@@ -13,20 +13,20 @@ from django.utils.decorators import method_decorator
 from rest_framework import permissions, generics
 
 
-# def todo_instance_to_dictionary(todo):
-#   """
-#   장고 단일 모델 인스턴스, 혹은 쿼리셋을 파이썬 딕셔너리로 변환하는 헬퍼 함수
-#   """
-#   result = {}
-#   result["id"] = todo.id
-#   result["text"] = todo.text
-#   result["done"] = todo.done
-#   return result
+def todo_instance_to_dictionary(todo):
+  """
+  장고 단일 모델 인스턴스, 혹은 쿼리셋을 파이썬 딕셔너리로 변환하는 헬퍼 함수
+  """
+  result = {}
+  result["id"] = todo.id
+  result["text"] = todo.text
+  result["done"] = todo.done
+  return result
 
-# class ViewWithoutCSRFAuthentication(generics.GenericAPIView):
-#   @method_decorator(csrf_exempt)
-#   def dispatch(self, request, *args, **kwargs):
-#     return super(ViewWithoutCSRFAuthentication, self).dispatch(request, *args, **kwargs)
+class ViewWithoutCSRFAuthentication(generics.GenericAPIView):
+  @method_decorator(csrf_exempt)
+  def dispatch(self, request, *args, **kwargs):
+    return super(ViewWithoutCSRFAuthentication, self).dispatch(request, *args, **kwargs)
 
 # class TodoListView(generics.GenericAPIView):
 #   permission_classes = [permissions.IsAuthenticated]
