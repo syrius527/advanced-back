@@ -28,7 +28,7 @@ environ.Env.read_env(
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
-SECRET_KEY = os.environ.get('DJANGO_KEY')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 DEBUG = True
 
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'drf_yasg',
 ]
 
 REST_FRAMEWORK = {
@@ -73,6 +74,16 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN': 'access_token',
     'REFRESH_TOKEN': 'refresh_token',
 
+}
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
 }
 
 MIDDLEWARE = [
