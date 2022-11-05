@@ -1,7 +1,11 @@
 import json
 from django.views.generic import View
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from accounts.models import User
+from todos.serializers import TodoSerializer
 from .models import Todo
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -24,37 +28,52 @@ class ViewWithoutCSRFAuthentication(generics.GenericAPIView):
   def dispatch(self, request, *args, **kwargs):
     return super(ViewWithoutCSRFAuthentication, self).dispatch(request, *args, **kwargs)
 
-class TodoListView(generics.GenericAPIView):
+# class TodoListView(generics.GenericAPIView):
+#   permission_classes = [permissions.IsAuthenticated]
+
+#   def get(self, request):
+#     try:
+#       todo_list = []
+#       todo_queryset = Todo.objects.filter(author_id = request.user.id)
+#       for todo_instance in todo_queryset:
+#         todo_list.append(todo_instance_to_dictionary(todo_instance))
+#       data = { "todos": todo_list }
+#       return JsonResponse(data, status=200)
+#     except:
+#       return JsonResponse({"msg": "Failed to get todos"}, status=404)
+
+class TodoListView(APIView):
   permission_classes = [permissions.IsAuthenticated]
 
   def get(self, request):
-    try:
-      todo_list = []
-      todo_queryset = Todo.objects.filter(author_id = request.user.id)
-      for todo_instance in todo_queryset:
-        todo_list.append(todo_instance_to_dictionary(todo_instance))
-      data = { "todos": todo_list }
-      return JsonResponse(data, status=200)
-    except:
-      return JsonResponse({"msg": "Failed to get todos"}, status=404)
-
-class TodoCreateView(ViewWithoutCSRFAuthentication):
-  permission_classes = [permissions.IsAuthenticated]
+    serializer = TodoSerializer(Todo.objects.filter(author=request.user), many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
   def post(self, request):
-    try:
-      body = json.loads(request.body) #body에서 받아온 것을 역직렬화!
-    except:
-      return JsonResponse({"msg": "Invalid parameters"}, status=400)
+    serializer = TodoSerializer(data=request.data)
+    if serializer.is_valid():
+      serializer.save(author=request.user)
+      return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    try:
-      todo_instance = Todo.objects.create(text=body["text"], author_id = request.user.id)
-    except:
-      return JsonResponse({"msg": "Failed to create todos"}, status=400)
+# => to TodoListView.post
+# class TodoCreateView(ViewWithoutCSRFAuthentication):
+#   permission_classes = [permissions.IsAuthenticated]
 
-    todo_dict = todo_instance_to_dictionary(todo_instance)
-    data = { "todo": todo_dict }
-    return JsonResponse(data, status=200)
+#   def post(self, request):
+#     try:
+#       body = json.loads(request.body) #body에서 받아온 것을 역직렬화!
+#     except:
+#       return JsonResponse({"msg": "Invalid parameters"}, status=400)
+
+#     try:
+#       todo_instance = Todo.objects.create(text=body["text"], author_id = request.user.id)
+#     except:
+#       return JsonResponse({"msg": "Failed to create todos"}, status=400)
+
+#     todo_dict = todo_instance_to_dictionary(todo_instance)
+#     data = { "todo": todo_dict }
+#     return JsonResponse(data, status=200)
 
 class TodoCheckView(ViewWithoutCSRFAuthentication):
   permission_classes = [permissions.IsAuthenticated]
