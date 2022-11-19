@@ -28,4 +28,4 @@ class TestTodos(APITestCase):
         url = "/api/todos/"
         data = { "text": "test" }
         response = self.client.post(url, data)
-        self.assertEqual(201, response.status_code)
+        self.assertEqual(200, response.status_code)
